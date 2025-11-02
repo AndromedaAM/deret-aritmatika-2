@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Latihan Deret Angka - 25 Soal</title>
+  <style>
+    :root{--bg:#f8f8f8;--card:#fff;--primary:#2d8cf0;--danger:#e74c3c;--ok:#2ecc71;--bad:#ff7b7b}
+    html,body{height:100%;margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);overflow-y:auto}
+    .wrap{max-width:900px;margin:36px auto;padding:20px}
+    .card{background:var(--card);border-radius:10px;padding:22px;box-shadow:0 6px 18px rgba(0,0,0,0.08)}
+    .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+    .timer{font-weight:700;color:var(--danger)}
+    .meta-soal{color:#2d8cf0;font-weight:700;margin-bottom:8px}
+    .soal-text{font-weight:600;margin-bottom:12px;white-space:pre-line}
+    .options label{display:block;margin:8px 0;cursor:pointer}
+    #nextButton{margin-top:12px;padding:8px 14px;border:0;background:var(--primary);color:#fff;border-radius:6px;cursor:pointer}
+    #nextButton.hidden{display:none}
+    #result{margin-top:18px}
+    .review-item{padding:10px;border-radius:8px;margin-bottom:10px}
+    .ok{background:rgba(46,204,113,0.12);border:1px solid rgba(46,204,113,0.2)}
+    .bad{background:rgba(255,123,123,0.12);border:1px solid rgba(255,123,123,0.2)}
+    .meta{font-size:13px;color:#444;margin-top:6px}
+    .controls{margin-top:12px}
+    .btn-restart{background:#27ae60;color:#fff;padding:8px 12px;border-radius:6px;border:0;cursor:pointer}
+    .small-note{font-size:13px;color:#666}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div id="quizArea">
+        <div class="header">
+          <div><strong>Latihan Deret Angka - 25 Soal</strong></div>
+          <div class="timer">Waktu: <span id="timer">30</span>s</div>
+        </div>
+
+        <div id="nomor" class="meta-soal">Soal 1</div>
+        <div id="question" class="soal-text">Memuat soal...</div>
+        <div id="options" class="options"></div>
+        <div class="controls">
+          <button id="nextButton" onclick="manualNext()">Next</button>
+        </div>
+      </div>
+
+      <div id="result" class="hidden"></div>
+    </div>
+  </div>
+
+  <script>
+    // quizData: 25 soal, opts array, ans = index 0..4
+    const quizData = [
+      { num:1, text:'13-10-6-8-9-5-2-..?', opts:['0','3','4','-1','5'], ans:2 },
+      { num:2, text:'31-18-47-65-113-178-291-..?', opts:['378','469','459','392','410'], ans:1 },
+      { num:3, text:'51-24-27-72-72-36-38-..?', opts:['40','76','54','108','72'], ans:3 },
+      { num:4, text:'5-6-9-14-21-22-25-..?', opts:['28','29','30','27','26'], ans:2 },
+      { num:5, text:'7-4-9-10-6-3-6-..?', opts:['5','7','4','8','6'], ans:1 },
+      { num:6, text:'33-11-22-15-15-5-10-..?', opts:['7','8','9','12','6'], ans:2 },
+      { num:7, text:'6-11-7-10-8-13-9-..?', opts:['10','11','12','13','9'], ans:2 },
+      { num:8, text:'15-61-30-15-30-120-60-..?', opts:['30','90','120','240','75'], ans:2 },
+      { num:9, text:'10-8-16-12-6-12-24-..?', opts:['18','20','16','12','28'], ans:2 },
+      { num:10, text:'6-12-21-23-18-36-63-..?', opts:['64','65','66','71','60'], ans:1 },
+      { num:11, text:'22-18-81-79-97-93-39-..?', opts:['35','41','45','33','29'], ans:0 },
+      { num:12, text:'2-6-15-31-56-92-141-..?', opts:['200','205','210','196','220'], ans:1 },
+      { num:13, text:'37-41-14-12-24-28-82-..?', opts:['26','46','90','34','18'], ans:0 },
+      { num:14, text:'11-13-31-34-43-45-54-..?', opts:['56','57','58','60','51'], ans:1 },
+      { num:15, text:'18-11-21-23-36-52-81-..?', opts:['119','121','133','110','100'], ans:2 },
+      { num:16, text:'6-7-5-9-5-6-4-..?', opts:['6','7','8','5','4'], ans:2 },
+      { num:17, text:'11-4-8-6-8-3-7-..?', opts:['5','6','4','8','3'], ans:0 },
+      { num:18, text:'4-13-32-72-135-228-357-..?', opts:['512','568','600','490','642'], ans:1 },
+      { num:19, text:'4-9-34-25-136-48-355-..?', opts:['106','120','240','180','95'], ans:0 },
+      { num:20, text:'13-17-71-71-17-20-24-..?', opts:['68','44','28','20','71'], ans:0 },
+      { num:21, text:'11-8-8-15-15-13-11-..?', opts:['8','10','12','9','15'], ans:0 },
+      { num:22, text:'3-10-29-66-127-219-346-..?', opts:['511','472','500','540','465'], ans:0 },
+      { num:23, text:'44-36-30-26-24-17-11-..?', opts:['7','5','3','9','11'], ans:0 },
+      { num:24, text:'15-16-19-16-11-12-14-..?', opts:['12','13','10','15','9'], ans:0 },
+      { num:25, text:'5-1-2-8-8-5-6-..?', opts:['10','12','18','6','8'], ans:2 }
+    ];
+
+    let idx = 0;
+    let timeLeft = 30;
+    let tmr = null;
+    const userAns = [];
+
+    const elNomor = document.getElementById('nomor');
+    const elQ = document.getElementById('question');
+    const elOptions = document.getElementById('options');
+    const elTimer = document.getElementById('timer');
+    const elNext = document.getElementById('nextButton');
+    const elResult = document.getElementById('result');
+
+    function resetRadios(){
+      const r = document.getElementsByName('opt');
+      Array.from(r).forEach(x=>x.checked=false);
+    }
+
+    function renderQuestion(){
+      clearInterval(tmr);
+      timeLeft = 30;
+      elTimer.textContent = timeLeft;
+      const data = quizData[idx];
+      elNomor.textContent = 'Soal ' + data.num;
+      elQ.textContent = data.text;
+      elOptions.innerHTML = '';
+      data.opts.forEach((o,i)=>{
+        const id = `q${idx}_o${i}`;
+        const lab = document.createElement('label');
+        lab.innerHTML = `<input name='opt' id='${id}' type='radio' value='${i}'> ${String.fromCharCode(65+i)}. ${o}`;
+        elOptions.appendChild(lab);
+      });
+      elNext.classList.remove('hidden');
+      resetRadios();
+      tmr = setInterval(()=>{ timeLeft--; elTimer.textContent = timeLeft; if(timeLeft<=0){ autoNext(); } },1000);
+    }
+
+    function saveAnswer(){
+      const sel = document.querySelector("input[name='opt']:checked");
+      userAns[idx] = sel?parseInt(sel.value):null;
+    }
+
+    function autoNext(){ clearInterval(tmr); saveAnswer(); idx++; if(idx<quizData.length) renderQuestion(); else showResults(); }
+    function manualNext(){ clearInterval(tmr); saveAnswer(); idx++; if(idx<quizData.length) renderQuestion(); else showResults(); }
+
+    function showResults(){
+      clearInterval(tmr);
+      document.getElementById('quizArea').classList.add('hidden');
+      elResult.classList.remove('hidden');
+      document.body.style.overflowY = 'auto';
+
+      // count correct
+      let correct = 0; quizData.forEach((q,i)=>{ if(userAns[i]===q.ans) correct++; });
+
+      let out = `<h2>Latihan Selesai</h2><p>Jumlah jawaban benar: ${correct}/${quizData.length}</p><hr>`;
+      out += '<h3>Review Jawaban</h3>';
+      quizData.forEach((q,i)=>{
+        const ua = userAns[i]===null||userAns[i]===undefined? 'Tidak dijawab' : `${String.fromCharCode(65+userAns[i])}. ${q.opts[userAns[i]]}`;
+        const ca = `${String.fromCharCode(65+q.ans)}. ${q.opts[q.ans]}`;
+        const isCorrect = userAns[i]===q.ans;
+        out += `<div class="review-item ${isCorrect? 'ok':'bad'}">`;
+        out += `<div><strong>Soal ${q.num}</strong></div>`;
+        out += `<div class="meta">Pertanyaan: ${q.text}</div>`;
+        out += `<div class="meta">Jawaban kamu: ${ua}</div>`;
+        out += `<div class="meta">Kunci: ${ca}</div>`;
+        out += `</div>`;
+      });
+
+      out += `<div style='margin-top:12px'><button class='btn-restart' onclick='restart()'>Mulai Ulang Tes</button></div>`;
+      elResult.innerHTML = out;
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+
+    function restart(){ idx=0; userAns.length=0; elResult.classList.add('hidden'); document.getElementById('quizArea').classList.remove('hidden'); renderQuestion(); }
+
+    // start
+    renderQuestion();
+  </script>
+</body>
+</html>
